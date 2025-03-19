@@ -1617,7 +1617,7 @@ final class DmailController extends MainController
                             }
                             if ($whichTables&8) {
                                 // fe_groups
-                                if (!is_array($idLists['fe_users'])) {
+                                if (!is_array($idLists['fe_users'] ?? null)) {
                                     $idLists['fe_users'] = [];
                                 }
                                 $idLists['fe_users'] = GeneralUtility::makeInstance(FeGroupsRepository::class)->getIdList($pageIdArray, $groupUid, $mailGroup['select_categories']);

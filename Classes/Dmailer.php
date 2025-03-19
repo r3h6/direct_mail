@@ -711,7 +711,7 @@ class Dmailer implements LoggerAwareInterface
         switch ($key) {
             case 'begin':
                 $subject .= $this->getLanguageService()->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:dmailer_job_begin');
-                $message = $this->getLanguageService()->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:');
+                $message = $this->getLanguageService()->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:dmailer_job_begin');
                 break;
             case 'end':
                 $subject .= $this->getLanguageService()->sL('LLL:EXT:direct_mail/Resources/Private/Language/locallang_mod2-6.xlf:dmailer_job_end');
@@ -840,7 +840,7 @@ class Dmailer implements LoggerAwareInterface
             $this->extractMediaLinks();
             foreach ($this->theParts['html']['media'] as $media) {
                 // TODO: why are there table related tags here?
-                if (in_array($media['tag'], ['img', 'table', 'tr', 'td'], true) && !$media['use_jumpurl'] && !$media['do_not_embed']) {
+                if (in_array($media['tag'] ?? null, ['img', 'table', 'tr', 'td'], true) && !$media['use_jumpurl'] && !$media['do_not_embed']) {
                     if (ini_get('allow_url_fopen')) {
                         $context = GeneralUtility::makeInstance(FetchUtility::class)->getStreamContext();
                         if (($fp = fopen($media['absRef'], 'r', false, $context)) !== false) {
