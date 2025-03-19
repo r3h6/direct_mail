@@ -647,12 +647,30 @@ class Dmailer implements LoggerAwareInterface
             );
 
             if ($logUid) {
-                $values = [
-                    'logUid' => $logUid,
-                    'html_sent' => (int)$this->sendAdvanced($recipRow, $tableKey),
-                    'parsetime' => $this->getMilliseconds() - $parseTimeStart,
-                    'size' => strlen($this->message)
-                ];
+                try {
+                    $values = [
+                        'logUid' => $logUid,
+                        'html_sent' => (int)$this->sendAdvanced($recipRow, $tableKey),
+                        'parsetime' => $this->getMilliseconds() - $parseTimeStart,
+                        'size' => strlen($this->message)
+                    ];
+                } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $exception) {
+                    // In case of an error we treat this error same as a bounced email by creating an error log entry.
+                    $this->logger->warning($exception->getMessage(), ['logUid' => $logUid, 'email' => $recipRow['email']]);
+                    $knownReturnCodes = [
+                        550 => 550,
+                        551 => 551,
+                        552 => 552,
+                        553 => 553,
+                        554 => 554,
+                    ];
+                    $insertFields = [
+                        'logUid' => $logUid,
+                        'response_type' => -127,
+                        'return_content' => $exception->getMessage(),
+                        'return_code' => $knownReturnCodes[(int) $exception->getCode()] ?? -1,
+                    ];
+                }
                 $ok = $sysDmailMaillogRepository->updateSysDmailMaillogForShipOfMail($values);
 
                 if ($ok === false) {
